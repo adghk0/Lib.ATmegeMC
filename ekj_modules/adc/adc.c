@@ -17,10 +17,10 @@ ISR(ADC_vect)
 }
 
 // initializing ADC
-void adc_init(unsigned long f_cpu, unsigned char adlar, unsigned char ref)
+void adc_init(unsigned char adlar, unsigned char ref, unsigned char prescaler)
 {
 	// ADC Enable, ADC Interrupt Enable, ADC Prescaler 128
-	ADCSRA = (1<<ADEN) | (1<<ADIE) | (7<<ADPS0);
+	ADCSRA = (1<<ADEN) | (1<<ADIE) | (prescaler<<ADPS0);
 	// set reference voltage and left adjust result bit
 	ADMUX = (ref<<REFS0) | (adlar<<ADLAR);
 }

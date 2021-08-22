@@ -25,12 +25,20 @@
 #define ADC_REF_AVCC	1
 #define ADC_REF_INTER	3
 
+#define ADC_PRE_2	1
+#define ADC_PRE_4	2
+#define ADC_PRE_8	3
+#define ADC_PRE_16	4
+#define ADC_PRE_32	5
+#define ADC_PRE_64	6
+#define ADC_PRE_128	7
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/common.h>
 
 // initializing ADC
-void adc_init(unsigned long f_cpu, unsigned char adlar, unsigned char ref);
+void adc_init(unsigned char adlar, unsigned char ref, unsigned char prescaler);
 // request starting conversion
 void adc_request(unsigned char channel);
 // can read the data
