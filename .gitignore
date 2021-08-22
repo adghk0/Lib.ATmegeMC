@@ -1,6 +1,8 @@
 Debug/
 
-*.xml/
-*.cproj/
+*.xml
+*.cproj
 
 main.c
+
+**/*.todo
