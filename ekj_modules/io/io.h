@@ -9,28 +9,19 @@
 #ifndef IO_H_
 #define IO_H_
 
+#define F_CPU 16000000UL
+
 #define IO_INPUT	0
 #define IO_OUTPUT	1
 
-void io_dir(volatile uint8_t *ddr, unsigned char bit, unsigned char dir)
-{
-	*ddr = (*ddr&~(1<<bit)) | (dir*(1<<bit));
-}
-void io_set(volatile uint8_t *port, unsigned char bit)
-{
-	*port |= (1<<bit);
-}
-void io_clear(volatile uint8_t *port, unsigned char bit)
-{
-	*port &= ~(1<<bit);
-}
-void io_write(volatile uint8_t *port, unsigned char bit, unsigned char val)
-{
-	*port = (*port&~(1<<bit)) | (val*(1<<bit));
-}
-char io_read(volatile uint8_t *pin, unsigned char bit)
-{
-	return (*pin & (1<<bit)) != 0;
-}
+#include <stdint.h>
+#include <util/delay.h>
+
+void io_dir(volatile uint8_t *ddr, unsigned char bit, unsigned char dir);
+void io_set(volatile uint8_t *port, unsigned char bit);
+void io_clear(volatile uint8_t *port, unsigned char bit);
+void io_write(volatile uint8_t *port, unsigned char bit, unsigned char val);
+char io_read(volatile uint8_t *pin, unsigned char bit);
+int io_wait(volatile uint8_t *pin, unsigned char bit, unsigned char obj, int timeout);
 
 #endif /* IO_H_ */
