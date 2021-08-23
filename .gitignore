@@ -6,3 +6,6 @@ Debug/
 main.c
 
 **/*.todo
+
+test.c
+test.h
