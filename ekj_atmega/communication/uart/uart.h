@@ -13,11 +13,13 @@
 #define UART_FRAME_ERROR	8
 #define UART_OVERRUN_ERROR	4
 #define UART_PARITY_ERROR	2
+#define UART_OVERFLOW_ERROR	1
+#define UART_ERROR_MSK		14
 
 #define UART_MODE_ASC		0
 #define UART_MODE_SYN		1
-#define UART_MODE_SPI		3		// not support
-#define UART_MODE_MPC		4		// not support
+// #define UART_MODE_SPI		3		// not support
+// #define UART_MODE_MPC		4		// not support
 
 #define UART_PARITY_DISABLE	0
 #define UART_PARITY_EVEN	2
@@ -30,7 +32,7 @@
 #define UART_DATA_6BIT		1
 #define UART_DATA_7BIT		2
 #define UART_DATA_8BIT		3
-#define UART_DATA_9BIT		7		// not support
+// #define UART_DATA_9BIT		7		// not support
 
 
 /*** INCLUDES ***/
@@ -81,20 +83,44 @@ uart_info* uart_new(unsigned long baudrate,
 					unsigned char mode,
 					unsigned char stop_bit,
 					unsigned char data_size,
+					unsigned char parity,
 					unsigned char polarity,
 					unsigned char tx_buffer_size,
 					unsigned char rx_buffer_size);
+// make new uart infomation simply
+uart_info* uart_new_simple(unsigned long baudrate);
+
+// is buffer can be written
+char uart_buf_writeble(uart_buffer *buf);
+// next index
+unsigned char uart_buf_next_index(uart_buffer *buf, unsigned char index);
+// write data to buffer
+void uart_buf_write(uart_buffer *buf, char data);
+// has data in buffer
+char uart_buf_available(uart_buffer *buf);
+// read data from buffer
+char uart_buf_read(uart_buffer *buf);
+
 
 // UART0
 #ifdef UCSR0A
+// initializing
 void uart0_init(uart_info *info);
+// write a byte
 void uart0_write(char data);
+// write a string
 void uart0_write_string(char *str);
+// has data in rx buffer
 char uart0_available();
+// read a byte
 char uart0_read();
+// read a string and put in buf
 void uart0_read_string(char *buf, char size);
+// tx buffer flush
 void uart0_tx_flush();
+// rx buffer flush
 void uart0_rx_flush();
+// get error signal
 char uart0_get_error();
 #endif /* UART0 */
 
