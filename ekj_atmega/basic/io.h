@@ -5,10 +5,10 @@
  *  Author: Eom Kyoungjun
  */ 
 
-/*** DEFINES ***/
-
 #ifndef IO_H_
 #define IO_H_
+
+/*** DEFINES ***/
 
 #define IO_INPUT	0
 #define IO_OUTPUT	1
@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <util/delay.h>
-
 
 /*** TYPES ***/
 
