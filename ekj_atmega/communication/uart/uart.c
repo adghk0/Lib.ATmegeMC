@@ -67,10 +67,11 @@ uart_info* uart_new_simple(unsigned long baudrate)
 					0, 128, 128);
 }
 
+
 // is buffer can be written
 char uart_buf_writeble(uart_buffer *buf)
 {
-	
+	return uart_buf_next_index(buf->w_pos) != buf->r_pos;
 }
 
 // next index
@@ -82,11 +83,8 @@ unsigned char uart_buf_next_index(uart_buffer *buf, unsigned char index)
 // write data to buffer
 void uart_buf_write(uart_buffer *buf, char data)
 {
-	if(uart_buf_writeble(buf))
-	{
-		buf->data[buf->w_pos] = data;
-		buf->w_pos =uart_buf_next_index(buf, buf->w_pos);
-	}
+	buf->data[buf->w_pos] = data;
+	buf->w_pos = uart_buf_next_index(buf, buf->w_pos);
 }
 
 // has data in buffer
@@ -97,19 +95,30 @@ char uart_buf_available(uart_buffer *buf)
 	if(buf->r_pos >= buf->w_pos)
 		r = rx_w - rx_r;
 	else
-		r = rx_r + buf->size - rx_r;
+		r = rx_w + buf->size - rx_r;
 		
+	return r;
 }
 
 // read data from buffer
-char uart_buf_read(uart_buffer *buf);
+char uart_buf_read(uart_buffer *buf)
+{
+	char re = buf->data[buf->r_pos];
+	buf->r_pos = uart_buf_next_index(buf->r_pos);
+	return re;
+}
+
 
 // UART0
 #ifdef UCSR0A
+uart_info *uart0_info;
+
 // initializing
 void uart0_init(uart_info *info)
 {
 	cli();
+	
+	uart0_info = info;
 	
 	// set baudrate
 	if(info->u2x)
@@ -131,7 +140,15 @@ void uart0_init(uart_info *info)
 }
 
 // write a byte
-void uart0_write(char data);
+void uart0_write(char data)
+{
+	char sreg = SREG;
+	cli();
+	
+	uart0_info->
+	
+	SREG = sreg;
+}
 // write a string
 void uart0_write_string(char *str);
 // has data in rx buffer
