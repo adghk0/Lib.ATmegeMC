@@ -13,7 +13,6 @@
 #define UART_FRAME_ERROR	8
 #define UART_OVERRUN_ERROR	4
 #define UART_PARITY_ERROR	2
-#define UART_OVERFLOW_ERROR	1
 #define UART_ERROR_MSK		14
 
 #define UART_MODE_ASC		0
@@ -46,7 +45,6 @@ typedef struct uart_status
 {
 	unsigned char error;
 	unsigned char overflow;
-	unsigned char ready;
 } uart_status;
 
 typedef struct uart_buffer
@@ -90,6 +88,7 @@ uart_info* uart_new(unsigned long baudrate,
 // make new uart infomation simply
 uart_info* uart_new_simple(unsigned long baudrate);
 
+
 // is buffer can be written
 char uart_buf_writeble(uart_buffer *buf);
 // next index
@@ -122,6 +121,8 @@ void uart0_tx_flush();
 void uart0_rx_flush();
 // get error signal
 char uart0_get_error();
+// get info structure
+uart_info *uart0_get_info();
 #endif /* UART0 */
 
 #endif /* UART_H_ */

@@ -5,6 +5,7 @@
  *  Author: Eom Kyoungjun
  */ 
 
+#include "uart.h"
 
 /*** FUNCTIONS ***/
 
@@ -52,6 +53,12 @@ uart_info* uart_new(unsigned long baudrate,
 	rx_b->r_pos = 0;
 	rx_b->w_pos = 0;
 	info->rx_buf = rx_b;
+	
+	sta->error = 0;
+	sta->overflow = 0;
+	info->status = sta;
+	
+	return info;
 }
 
 // make new uart infomation simply
@@ -64,14 +71,16 @@ uart_info* uart_new_simple(unsigned long baudrate)
 				    1, 1, 1, UART_MODE_ASC,
 					UART_STOP_1BIT,
 					UART_DATA_8BIT,
+					UART_PARITY_DISABLE,
 					0, 128, 128);
 }
+
 
 
 // is buffer can be written
 char uart_buf_writeble(uart_buffer *buf)
 {
-	return uart_buf_next_index(buf->w_pos) != buf->r_pos;
+	return uart_buf_next_index(buf, buf->w_pos) != buf->r_pos;
 }
 
 // next index
@@ -93,9 +102,9 @@ char uart_buf_available(uart_buffer *buf)
 	char r;
 	
 	if(buf->r_pos >= buf->w_pos)
-		r = rx_w - rx_r;
+		r = buf->w_pos - buf->r_pos;
 	else
-		r = rx_w + buf->size - rx_r;
+		r = buf->w_pos + buf->size - buf->r_pos;
 		
 	return r;
 }
@@ -104,7 +113,7 @@ char uart_buf_available(uart_buffer *buf)
 char uart_buf_read(uart_buffer *buf)
 {
 	char re = buf->data[buf->r_pos];
-	buf->r_pos = uart_buf_next_index(buf->r_pos);
+	buf->r_pos = uart_buf_next_index(buf, buf->r_pos);
 	return re;
 }
 
@@ -112,6 +121,43 @@ char uart_buf_read(uart_buffer *buf)
 // UART0
 #ifdef UCSR0A
 uart_info *uart0_info;
+
+// UDR Empty Interrupt
+ISR(USART_UDRE_vect)
+{
+	char sreg = SREG;
+	cli();
+	
+	uart_buffer *tx_b = uart0_info->tx_buf;
+	
+	// has data in buffer
+	if(uart_buf_available(tx_b))
+		// send
+		UDR0 = uart_buf_read(tx_b);
+	else
+		UCSR0B &= ~(1<<UDRIE0);
+	
+	SREG = sreg;
+}
+// RX Complete Interrupt
+ISR(USART_RX_vect)
+{
+	char r;
+	char sreg = SREG;
+	cli();
+	
+	uart_buffer *rx_b = uart0_info->rx_buf;
+	
+	// get data
+	r = UDR0;
+	uart0_info->status->error = UCSR0A & UART_ERROR_MSK;
+	
+	// write
+	if(uart_buf_writeble(rx_b))
+		uart_buf_write(rx_b, r);
+	
+	SREG = sreg;
+}
 
 // initializing
 void uart0_init(uart_info *info)
@@ -145,22 +191,108 @@ void uart0_write(char data)
 	char sreg = SREG;
 	cli();
 	
-	uart0_info->
+	// clear last overflow signal
+	uart0_info->status->overflow = 0;
+	
+	// get tx buffer
+	uart_buffer *tx_b = uart0_info->tx_buf;
+	
+	// check overflow
+	if (uart_buf_writeble(tx_b))
+	{
+		uart_buf_write(tx_b, data);
+		// set UDR interrupt
+		UCSR0B |= (1<<UDRIE0);
+	}
+	else
+		uart0_info->status->overflow = 1;
 	
 	SREG = sreg;
 }
+
 // write a string
-void uart0_write_string(char *str);
+void uart0_write_string(char *str)
+{
+	unsigned char i = 0, rem = 0;
+	char sreg = SREG;
+	cli();
+	
+	// clear last overflow signal
+	uart0_info->status->overflow = 0;
+	
+	// get tx buffer
+	uart_buffer *tx_b = uart0_info->tx_buf;
+	
+	// check overflow
+	while (uart_buf_writeble(tx_b))
+	{
+		uart_buf_write(tx_b, str[i++]);
+		// set UDR interrupt
+		UCSR0B |= (1<<UDRIE0);
+	}
+	
+	if(str[i])
+	{
+		// check remains
+		while(str[i++]) rem++;
+		uart0_info->status->overflow = rem;
+	}
+	
+	SREG = sreg;
+}
+
 // has data in rx buffer
-char uart0_available();
+char uart0_available()
+{
+	return uart_buf_available(uart0_info->rx_buf);	
+}
+
 // read a byte
-char uart0_read();
+char uart0_read()
+{
+	if(uart0_available())
+		return uart_buf_read(uart0_info->rx_buf);
+	else
+		return 0;
+}
+
 // read a string and put in buf
-void uart0_read_string(char *buf, char size);
+void uart0_read_string(char *buf, char size)
+{
+	unsigned char i = 0;
+	while(uart0_available() && i < size - 1)
+	{
+		buf[i++] = uart_buf_read(uart0_info->rx_buf); 
+	}
+	buf[i] = '\0';
+}
+
 // tx buffer flush
-void uart0_tx_flush();
+void uart0_tx_flush()
+{
+	uart_buffer *tx_b = uart0_info->tx_buf;
+	tx_b->r_pos = 0;
+	tx_b->w_pos = 0;
+}
+
 // rx buffer flush
-void uart0_rx_flush();
+void uart0_rx_flush()
+{
+	uart_buffer *rx_b = uart0_info->rx_buf;
+	rx_b->r_pos = 0;
+	rx_b->w_pos = 0;
+}
+
 // get error signal
-char uart0_get_error();
+char uart0_get_error()
+{
+	return uart0_info->status->error;
+}
+
+// get info structure
+uart_info *uart0_get_info()
+{
+	return uart0_info;
+}
+
 #endif /* UART0 */
