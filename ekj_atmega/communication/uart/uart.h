@@ -10,10 +10,10 @@
 
 /*** DEFINES ***/
 
-#define UART_FRAME_ERROR	8
-#define UART_OVERRUN_ERROR	4
-#define UART_PARITY_ERROR	2
-#define UART_ERROR_MSK		14
+#define UART_FRAME_ERROR	16
+#define UART_OVERRUN_ERROR	8
+#define UART_PARITY_ERROR	4
+#define UART_ERROR_MSK		28
 
 #define UART_MODE_ASC		0
 #define UART_MODE_SYN		1

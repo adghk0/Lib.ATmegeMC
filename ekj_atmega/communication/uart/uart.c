@@ -166,20 +166,26 @@ void uart0_init(uart_info *info)
 	
 	uart0_info = info;
 	
+	uart0_info->tx_buf->data = malloc(uart0_info->tx_buf->size);
+	uart0_info->rx_buf->data = malloc(uart0_info->rx_buf->size);
+	
 	// set baudrate
 	if(info->u2x)
-		UBRR0 = F_CPU / 8 / info->baudrate - 1;
+		UBRR0 = F_CPU / info->baudrate / 8 - 1;
 	else
-		UBRR0 = F_CPU / 16 / info->baudrate - 1; 
+		UBRR0 = F_CPU / info->baudrate / 16 - 1; 
+	
 	
 	// set UCSR0A
 	UCSR0A = (info->u2x<<U2X0);
+	
 	// set UCSR0B
 	UCSR0B = (1<<RXCIE0) | (info->rx_en<<RXEN0)
 			 | (info->tx_en<<TXEN0) | ((info->datasize&4));
+	
 	// set UCSR0C
 	UCSR0C = (info->mode<<UMSEL00) | (info->parity<<UPM00)
-			 | (info->stopbit<<USBS0) | (info->datasize&3<<UCSZ00)
+			 | (info->stopbit<<USBS0) | ((info->datasize&3)<<UCSZ00)
 			 | (info->polarity<<UCPOL0);
 	
 	sei();
