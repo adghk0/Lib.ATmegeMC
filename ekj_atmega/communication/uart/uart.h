@@ -41,6 +41,7 @@
 #include <stdlib.h>
 
 /*** TYPES ***/
+
 typedef struct uart_status
 {
 	unsigned char error;
