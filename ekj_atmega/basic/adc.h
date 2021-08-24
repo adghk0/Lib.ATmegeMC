@@ -35,9 +35,14 @@
 #define ADC_PRE_64	6
 #define ADC_PRE_128	7
 
+/*** INCLUDES ***/
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/common.h>
+
+/*** TYPES ***/
+
+/*** FUNCTIONS ***/
 
 // initializing ADC
 void adc_init(unsigned char adlar, unsigned char ref, unsigned char prescaler);
@@ -49,6 +54,7 @@ char adc_available();
 // read data
 // Returns : data(16bit)
 int adc_read();
-
+// is enabled
+char adc_enabled();
 
 #endif /* ADC_H_ */
