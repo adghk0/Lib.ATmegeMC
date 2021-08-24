@@ -41,20 +41,28 @@
 #include <avr/common.h>
 
 /*** TYPES ***/
+typedef struct adc_info {
+	unsigned char channel;
+	unsigned char adlar;
+	unsigned char refer;
+	unsigned char eoc;
+	int result;
+} adc_info;
 
 /*** FUNCTIONS ***/
 
-// initializing ADC
-void adc_init(unsigned char adlar, unsigned char ref, unsigned char prescaler);
-// request starting conversion
-void adc_request(unsigned char channel);
-// can read the data
-// Returns : exist(1), no-exist(0)
-char adc_available();
-// read data
-// Returns : data(16bit)
-int adc_read();
+// create new info data for adc
+adc_info* adc_new(unsigned char channel, unsigned char adlar, unsigned char reference);
+
 // is enabled
 char adc_enabled();
+// can convert
+char adc_ready();
+// initializing ADC
+void adc_init(unsigned char prescaler);
+// request starting conversion
+void adc_request(adc_info *info);
+// read data (not ended = -1)
+int adc_read(adc_info *info);
 
 #endif /* ADC_H_ */
