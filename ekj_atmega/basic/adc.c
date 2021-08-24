@@ -51,3 +51,9 @@ int adc_read()
 	finish = 1;
 	return buf;
 }
+
+// is enabled
+char adc_enabled()
+{
+	return ADCSRA & (1<<ADEN) != 0;
+}
