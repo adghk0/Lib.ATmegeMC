@@ -57,7 +57,7 @@ adc_info* adc_new(unsigned char channel, unsigned char adlar, unsigned char refe
 // is enabled
 char adc_enabled();
 // can convert
-char adc_ready();
+char adc_is_ready();
 // initializing ADC
 void adc_init(unsigned char prescaler);
 // request starting conversion

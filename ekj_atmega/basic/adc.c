@@ -8,8 +8,8 @@
 #include "adc.h"
 
 adc_info *adc_for;
-unsigned char adc_on;
-unsigned char adc_ready;
+char adc_on;
+char adc_ready;
 
 ISR(ADC_vect)
 {
@@ -41,7 +41,7 @@ char adc_enabled()
 }
 
 // can convert
-char adc_ready()
+char adc_is_ready()
 {
 	return adc_ready;
 }

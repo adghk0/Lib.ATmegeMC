@@ -18,18 +18,27 @@
 
 /*** INCLUDES ***/
 #include "../../../basic/adc.h"
+#include <stdlib.h>
 
 /*** TYPES ***/
 typedef struct acs712 {
-	unsigned int mutifly;
+	adc_info *channel;
+	unsigned int mutiply;
+	unsigned char avg;
+	unsigned int level;
+	unsigned int offset;
 	int result;
 } acs712;
 
 /*** FUNCTIONS ***/
 
-void acs712_init(unsigned char mutiply, unsigned char channel);
+acs712* acs712_init(unsigned int channel,
+					unsigned int mutiply,
+					unsigned char average,
+					unsigned char max);
+					
 // convert digital raw data to currents*mutiply
-void acs712_conv(unsigned char max);
+long acs712_conv(acs712* acs);
 
 
 #endif /* ACS712_H_ */

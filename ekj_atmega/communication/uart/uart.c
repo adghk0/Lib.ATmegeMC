@@ -230,7 +230,7 @@ void uart0_write_string(char *str)
 	uart_buffer *tx_b = uart0_info->tx_buf;
 	
 	// check overflow
-	while (uart_buf_writeble(tx_b))
+	while (uart_buf_writeble(tx_b) && str[i])
 	{
 		uart_buf_write(tx_b, str[i++]);
 		// set UDR interrupt
